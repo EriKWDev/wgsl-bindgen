@@ -301,6 +301,15 @@ impl<'a> RustStructBuilder<'a> {
     quote!(#ident #ty_param_def)
   }
 
+  fn fully_qualified_init_struct_name_in_usage_fragment(&self) -> TokenStream {
+    let fully_qualified_name_str =
+      format!("{}Init", self.item_path.get_fully_qualified_name());
+    let fully_qualified_name =
+      syn::parse_str::<TokenStream>(&fully_qualified_name_str).unwrap();
+    let ty_param_use = self.ty_param_use();
+    quote!(#fully_qualified_name #ty_param_use)
+  }
+
   fn init_struct_name_in_usage_fragment(&self) -> TokenStream {
     let name = format!("{}Init", self.item_path.name);
     let ident = Ident::new(&name, Span::call_site());
@@ -320,10 +329,17 @@ impl<'a> RustStructBuilder<'a> {
     quote!(impl #ty_param_def)
   }
 
+  fn should_skip_generating_init_struct(&self) -> bool {
+    return !self.is_directly_shareable()
+      || (!self.uses_padding() && !self.options.always_generate_init_struct);
+  }
+
+  fn should_generate_init_struct(&self) -> bool {
+    return !self.should_skip_generating_init_struct();
+  }
+
   fn build_init_struct(&self) -> TokenStream {
-    if !self.is_directly_shareable()
-      || (!self.uses_padding() && !self.options.always_generate_init_struct)
-    {
+    if self.should_skip_generating_init_struct() {
       return quote!();
     }
 
@@ -553,10 +569,24 @@ impl<'a> RustStructBuilder<'a> {
     let struct_name_in_usage = self.fully_qualified_struct_name_in_usage_fragment();
     let impl_fragment = self.impl_trait_for_fragment();
 
+    let skip_init_struct = self.should_skip_generating_init_struct();
+
     if self.options.serialization_strategy == WgslTypeSerializeStrategy::Bytemuck {
-      quote! {
+      let base_impls = quote! {
         unsafe #impl_fragment bytemuck::Zeroable for #struct_name_in_usage {}
         unsafe #impl_fragment bytemuck::Pod for #struct_name_in_usage {}
+      };
+
+      if !skip_init_struct && self.options.impl_zeroable_for_init_structs {
+        let init_struct_name_in_usage =
+          self.fully_qualified_init_struct_name_in_usage_fragment();
+
+        quote! {
+          #base_impls
+          unsafe #impl_fragment bytemuck::Zeroable for #init_struct_name_in_usage {}
+        }
+      } else {
+        base_impls
       }
     } else {
       quote!()

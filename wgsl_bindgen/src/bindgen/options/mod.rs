@@ -262,6 +262,10 @@ pub struct WgslBindgenOption {
   #[builder(default = "false")]
   pub always_generate_init_struct: bool,
 
+  /// Whether to implement Zeroable for init structs as well. This is only applicable when using bytemuck mode.
+  #[builder(default = "false")]
+  pub impl_zeroable_for_init_structs: bool,
+
   /// This field can be used to provide a custom generator for extra bindings that are not covered by the default generator.
   #[builder(default, setter(custom))]
   pub extra_binding_generator: Option<BindingGenerator>,
