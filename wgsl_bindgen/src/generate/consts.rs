@@ -5,41 +5,40 @@ use syn::Ident;
 use crate::quote_gen::{rust_type, RustItem, RustItemPath, RustItemType};
 use crate::WgslBindgenOption;
 
-pub fn consts_items(invoking_entry_module: &str, module: &naga::Module) -> Vec<RustItem> {
+pub fn consts_items(module: &naga::Module) -> TokenStream {
     // Create matching Rust constants for WGSl constants.
-    module
-        .constants
-        .iter()
-        .filter_map(|(_, t)| -> Option<RustItem> {
-            let name_str = t.name.as_ref()?;
+    let them = module.constants.iter().filter_map(|(_, t)| {
+        let name_str = t.name.as_ref()?;
 
-            // we don't need full qualification here
-            let rust_item_path = RustItemPath::new(name_str.into(), invoking_entry_module.into());
-            let name = Ident::new(&rust_item_path.name, Span::call_site());
+        // we don't need full qualification here
+        let name = Ident::new(name_str, Span::call_site());
 
-            // TODO: Add support for f64 and f16 once naga supports them.
-            let type_and_value = match &module.global_expressions[t.init] {
-                naga::Expression::Literal(literal) => match literal {
-                    naga::Literal::F64(v) => Some(quote!(f32 = #v)),
-                    naga::Literal::F32(v) => Some(quote!(f32 = #v)),
-                    naga::Literal::U32(v) => Some(quote!(u32 = #v)),
-                    naga::Literal::U64(v) => Some(quote!(u64 = #v)),
-                    naga::Literal::I32(v) => Some(quote!(i32 = #v)),
-                    naga::Literal::Bool(v) => Some(quote!(bool = #v)),
-                    naga::Literal::I64(v) => Some(quote!(i64 = #v)),
-                    naga::Literal::AbstractInt(v) => Some(quote!(i64 = #v)),
-                    naga::Literal::AbstractFloat(v) => Some(quote!(f64 = #v)),
-                },
-                _ => None,
-            }?;
+        // TODO: Add support for f64 and f16 once naga supports them.
+        let type_and_value = match &module.global_expressions[t.init] {
+            naga::Expression::Literal(literal) => match literal {
+                naga::Literal::F32(v) => Some(quote!(f32 = #v)),
+                naga::Literal::F64(v) => Some(quote!(f32 = #v)),
 
-            Some(RustItem::new(
-                RustItemType::ConstVarDecls.into(),
-                rust_item_path,
-                quote! { pub const #name: #type_and_value;},
-            ))
-        })
-        .collect()
+                naga::Literal::U32(v) => Some(quote!(u32 = #v)),
+                naga::Literal::U64(v) => Some(quote!(u64 = #v)),
+
+                naga::Literal::I32(v) => Some(quote!(i32 = #v)),
+                naga::Literal::I64(v) => Some(quote!(i64 = #v)),
+
+                naga::Literal::Bool(v) => Some(quote!(bool = #v)),
+
+                naga::Literal::AbstractInt(v) => Some(quote!(i64 = #v)),
+                naga::Literal::AbstractFloat(v) => Some(quote!(f64 = #v)),
+            },
+            _ => None,
+        }?;
+
+        Some(quote! { pub const #name: #type_and_value;})
+    });
+
+    quote! {
+        #(#them)*
+    }
 }
 
 pub fn pipeline_overridable_constants(

@@ -21,8 +21,8 @@ impl<'a> BindGroupEntriesStructBuilder<'a> {
         let entry_cons = self.generator.entry_constructor;
         let binding_index = binding.binding_index as usize;
         let demangled_name = RustItemPath::new(
-            binding.name.as_ref().unwrap().into(),
             self.invoking_entry_module.into(),
+            binding.name.as_ref().unwrap().into(),
         );
         let binding_name = Ident::new(&demangled_name.name, Span::call_site());
         let binding_var = quote!(#binding_var_name.#binding_name);
@@ -51,8 +51,8 @@ impl<'a> BindGroupEntriesStructBuilder<'a> {
             .iter()
             .map(|binding| {
                 let demangled_name = RustItemPath::new(
-                    binding.name.as_ref().unwrap().into(),
                     self.invoking_entry_module.into(),
+                    binding.name.as_ref().unwrap().into(),
                 );
                 let binding_name = Ident::new(&demangled_name.name, Span::call_site());
                 let create_entry = self.create_entry_from_parameter(&param_var_name, binding);
@@ -67,8 +67,8 @@ impl<'a> BindGroupEntriesStructBuilder<'a> {
     /// Generates a tuple of parameter field and entry field for a binding.
     fn binding_field_tuple(&self, binding: &GroupBinding) -> (TokenStream, TokenStream) {
         let rust_item_path = RustItemPath::new(
-            binding.name.as_ref().unwrap().into(),
             self.invoking_entry_module.into(),
+            binding.name.as_ref().unwrap().into(),
         );
         let field_name = format_ident!("{}", &rust_item_path.name.as_str());
 
@@ -98,8 +98,8 @@ impl<'a> BindGroupEntriesStructBuilder<'a> {
             .iter()
             .map(|binding| {
                 let demangled_name = RustItemPath::new(
-                    binding.name.as_ref().unwrap().into(),
                     self.invoking_entry_module.into(),
+                    binding.name.as_ref().unwrap().into(),
                 );
                 let binding_name = Ident::new(&demangled_name.name, Span::call_site());
                 quote! (#binding_var_name.#binding_name)

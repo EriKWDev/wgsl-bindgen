@@ -106,8 +106,8 @@ pub fn get_vertex_input_structs(
                     match &arg_type.inner {
                         naga::TypeInner::Struct { members, span: _ } => {
                             let item_path = RustItemPath::new(
-                                arg_type.name.as_ref().unwrap().into(),
                                 invoking_entry_module.into(),
+                                arg_type.name.as_ref().unwrap().into(),
                             );
 
                             let input = VertexInput {

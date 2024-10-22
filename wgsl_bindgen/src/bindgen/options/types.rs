@@ -42,22 +42,22 @@ impl WgslTypeMapBuild for GlamWgslTypeMap {
             ]
         } else {
             vec![
-                // (Vector(Vec3f), quote!(glam::Vec3A)),
-                // (Vector(Vec4f), quote!(glam::Vec4)),
-                // (Matrix(Mat3x3f), quote!(glam::Mat3A)),
-                // (Matrix(Mat4x4f), quote!(glam::Mat4)),
-                (Vector(Vec2i), quote!(glam::IVec2)),
-                (Vector(Vec3i), quote!(glam::IVec3)),
-                (Vector(Vec4i), quote!(glam::IVec4)),
-                (Vector(Vec2u), quote!(glam::UVec2)),
-                (Vector(Vec3u), quote!(glam::UVec3)),
-                (Vector(Vec4u), quote!(glam::UVec4)),
-                (Vector(Vec2f), quote!(glam::Vec2)),
                 (Vector(Vec3f), quote!(glam::Vec3A)),
                 (Vector(Vec4f), quote!(glam::Vec4)),
-                (Matrix(Mat2x2f), quote!(glam::Mat2)),
                 (Matrix(Mat3x3f), quote!(glam::Mat3A)),
                 (Matrix(Mat4x4f), quote!(glam::Mat4)),
+                // (Vector(Vec2i), quote!(glam::IVec2)),
+                // (Vector(Vec3i), quote!(glam::IVec3)),
+                // (Vector(Vec4i), quote!(glam::IVec4)),
+                // (Vector(Vec2u), quote!(glam::UVec2)),
+                // (Vector(Vec3u), quote!(glam::UVec3)),
+                // (Vector(Vec4u), quote!(glam::UVec4)),
+                // (Vector(Vec2f), quote!(glam::Vec2)),
+                // (Vector(Vec3f), quote!(glam::Vec3A)),
+                // (Vector(Vec4f), quote!(glam::Vec4)),
+                // (Matrix(Mat2x2f), quote!(glam::Mat2)),
+                // (Matrix(Mat3x3f), quote!(glam::Mat3A)),
+                // (Matrix(Mat4x4f), quote!(glam::Mat4)),
             ]
         };
 

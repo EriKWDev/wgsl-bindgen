@@ -304,16 +304,13 @@ pub fn bind_groups_module(
             #(#all_bind_group_entry_names.as_slice(),)*
           ];
 
-          pub fn extract_named_binding_types_for_all_bind_groups(output: &mut std::collections::HashMap<String, wgpu::BindingType>) {
+          pub fn extract_named_binding_types_for_all_bind_groups(output: &mut std::collections::HashMap<String, wgpu::BindGroupLayoutEntry>) {
             output.extend(BIND_GROUP_ENTRY_NAMES.into_iter().zip(BIND_GROUP_ENTRIES.into_iter()).flat_map(|(names, entries)| {
               assert!(names.len() == entries.len());
               names.into_iter().zip(entries.into_iter()).map(|(name, entry)| {
-                (name.to_string(), entry.ty)
+                (name.to_string(), entry.clone())
               })
             }));
-          }
-
-          pub fn construct_bind_group_values_from_named() -> Option<[; NUM_BIND_GROUPS]> {
           }
 
           #[derive(Debug, Copy, Clone)]

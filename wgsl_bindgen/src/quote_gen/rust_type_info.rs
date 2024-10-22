@@ -33,8 +33,11 @@ impl RustTypeInfo {
         if self.is_dynamic_array() {
             quote!(None)
         } else {
-            let ty = quote!(#self);
-            quote!(std::num::NonZeroU64::new(std::mem::size_of::<#ty>() as _))
+            let mut it = self.tokens.clone().to_string();
+            it = it.replace('"', ""); // HACK: Don't know when these quotes are inserted but at some point they are
+            let it: TokenStream = it.parse().unwrap();
+
+            quote!(std::num::NonZeroU64::new(std::mem::size_of::<#it>() as _))
         }
     }
 }
@@ -55,6 +58,7 @@ pub(crate) fn custom_vector_matrix_assertions(options: &WgslBindgenOption) -> To
         let alignment = Index::from(ty.alignment_value());
         let aligned_size = Index::from(ty.aligned_size()?);
 
+        let ty = ty.tokens;
         Some(quote! {
           assert!(std::mem::size_of::<#ty>() == #aligned_size);
           assert!(std::mem::align_of::<#ty>() == #alignment);
@@ -289,16 +293,19 @@ pub(crate) fn rust_type(
         naga::TypeInner::Atomic(scalar) => rust_scalar_type(scalar, alignment),
         naga::TypeInner::Pointer { base: _, space: _ } => todo!(),
         naga::TypeInner::ValuePointer { .. } => todo!(),
+
         naga::TypeInner::Array {
             base,
             size: naga::ArraySize::Constant(size),
             stride,
         } => {
             let inner_ty = rust_type(invoking_entry_module, module, &module.types[*base], options);
+            let it = inner_ty.tokens;
             let count = Index::from(size.get() as usize);
 
-            RustTypeInfo(quote!([#inner_ty; #count]), *stride as usize, alignment)
+            RustTypeInfo(quote!([#it; #count]), *stride as usize, alignment)
         }
+
         naga::TypeInner::Array {
             base,
             size: naga::ArraySize::Dynamic,
@@ -311,8 +318,9 @@ pub(crate) fn rust_type(
                 &module.types[*base],
                 &options,
             );
+            let it = element_type.tokens.clone();
 
-            let member_type = quote!([#element_type; N]);
+            let member_type = quote!([#it; N]);
 
             RustTypeInfo {
                 tokens: member_type,
@@ -322,7 +330,8 @@ pub(crate) fn rust_type(
         }
         naga::TypeInner::Struct { members, span: _ } => {
             let name = ty.name.as_ref().unwrap();
-            // let name = demangle_and_fully_qualify(name_str, invoking_entry_module);
+            // let name_ident = demangle_and_fully_qualify(name, invoking_entry_module);
+            let name_ident = quote::format_ident!("{name}");
 
             let size = type_layout.size as usize;
 
@@ -331,7 +340,7 @@ pub(crate) fn rust_type(
                 fully_qualified_name: name.into(),
             }
             .get_mapped_type(&options.type_map, size, alignment)
-            .unwrap_or(RustTypeInfo(quote! { #name }, size, alignment));
+            .unwrap_or(RustTypeInfo(quote! { #name_ident }, size, alignment));
 
             // check if the last member is a runtime sized array
             if let Some(last) = members.last() {
@@ -348,6 +357,7 @@ pub(crate) fn rust_type(
 
             mapped_type
         }
+
         naga::TypeInner::BindingArray { base: _, size: _ } => todo!(),
         naga::TypeInner::AccelerationStructure => todo!(),
         naga::TypeInner::RayQuery => todo!(),

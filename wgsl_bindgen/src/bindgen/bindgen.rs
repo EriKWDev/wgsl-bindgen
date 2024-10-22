@@ -103,6 +103,7 @@ impl WGSLBindgen {
         all_shaders: impl IntoIterator<Item = (PathBuf, String)>,
     ) -> Result<String, WgslBindgenError> {
         let ir_capabilities = self.options.ir_capabilities;
+
         let entry_results = all_shaders
             .into_iter()
             .map(|(file_name, src)| {

@@ -5,11 +5,7 @@ use naga::{Handle, Type};
 use crate::quote_gen::{RustItem, RustItemPath, RustStructBuilder};
 use crate::WgslBindgenOption;
 
-pub fn structs_items(
-    invoking_entry_module: &str,
-    module: &naga::Module,
-    options: &WgslBindgenOption,
-) -> Vec<RustItem> {
+pub fn structs_items(module: &naga::Module, options: &WgslBindgenOption) -> Vec<RustItem> {
     // Initialize the layout calculator provided by naga.
     let mut layouter = naga::proc::Layouter::default();
     layouter.update(module.to_ctx()).unwrap();

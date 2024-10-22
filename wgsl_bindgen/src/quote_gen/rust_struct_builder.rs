@@ -104,8 +104,8 @@ impl<'a> NagaToRustStructState<'a> {
                             syn::parse_str::<TokenStream>(&required_member_size).unwrap();
 
                         let pad_name = Ident::new(&pad_name, Span::call_site());
-                        let pad_size_tokens =
-                            quote!(#member_size - core::mem::size_of::<#rust_type>());
+                        let ty = &rust_type.tokens;
+                        let pad_size_tokens = quote!(#member_size - core::mem::size_of::<#ty>());
 
                         let padding = Padding {
                             pad_name,
@@ -482,6 +482,7 @@ impl<'a> RustStructBuilder<'a> {
 
         let fully_qualified_name =
             syn::parse_str::<TokenStream>(&fully_qualified_name_str).unwrap();
+
         let struct_name = if self.uses_generics_for_rts() {
             quote!(#fully_qualified_name<1>) // test RTS with 1 element
         } else {

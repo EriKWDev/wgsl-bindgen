@@ -58,6 +58,7 @@ fn create_rust_bindings(
     let math_asserts = custom_vector_matrix_assertions(options);
 
     let mut parts = vec![];
+    let mut mod_names = vec![];
 
     for entry in entries.iter() {
         let WgslEntryResult {
@@ -73,8 +74,8 @@ fn create_rust_bindings(
         let shader_stages = wgsl::shader_stages(naga_module);
 
         // Write all the structs, including uniforms and entry function inputs.
-        let structs = structs::structs_items(&mod_name, naga_module, options);
-        let consts = consts::consts_items(&mod_name, naga_module);
+        let structs = structs::structs_items(naga_module, options);
+        let consts = consts::consts_items(naga_module);
         let overridable_consts = consts::pipeline_overridable_constants(naga_module, options);
         let vertex_struct_impls = vertex_struct_impls(mod_name, naga_module);
 
@@ -104,7 +105,13 @@ fn create_rust_bindings(
             &bind_group_data,
         );
 
-        let them = structs.into_iter().map(|it| it.item).collect::<Vec<_>>();
+        let all = vec![
+            vertex_struct_impls
+                .into_iter()
+                .map(|it| it.item)
+                .collect::<Vec<_>>(),
+            structs.into_iter().map(|it| it.item).collect::<Vec<_>>(),
+        ];
 
         let mod_name = qs::format_ident!("{mod_name}");
 
@@ -112,15 +119,27 @@ fn create_rust_bindings(
             pub mod #mod_name {
                 use super::*;
 
-                #(#them)*
+                #consts
+                #bind_groups
+
+                #(#(#all)*)*
             }
         });
+        mod_names.push(mod_name);
     }
 
     let output = quote! {
       #![allow(unused, non_snake_case, non_camel_case_types, non_upper_case_globals)]
 
+      pub fn extract_named_bind_group_variables_and_types_for_all_shaders(output: &mut std::collections::HashMap<String, wgpu::BindGroupLayoutEntry>) {
+          #(#mod_names::extract_named_binding_types_for_all_bind_groups(output);)*
+      }
+
       #(#parts)*
+
+      pub mod math_asserts {
+          #math_asserts
+      }
     };
 
     Ok(pretty_print(&output))
@@ -128,6 +147,11 @@ fn create_rust_bindings(
 
 fn pretty_print(tokens: &TokenStream) -> String {
     let it = tokens.to_string();
+
+    if std::env::var("WGSL_DEBUG").is_ok() {
+        let _ = std::fs::write("output.rs", &it);
+    }
+
     let file = syn::parse_file(&it).unwrap();
     prettyplease::unparse(&file)
 }
