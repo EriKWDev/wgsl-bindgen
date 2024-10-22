@@ -6,5 +6,5 @@ pub(crate) const MOD_STRUCT_ASSERTIONS: &str = "layout_asserts";
 pub(crate) const MOD_BYTEMUCK_IMPLS: &str = "bytemuck_impls";
 
 pub(crate) fn mod_reference_root() -> Ident {
-  unsafe { syn::parse_str(MOD_REFERENCE_ROOT).unwrap_unchecked() }
+    unsafe { syn::parse_str(MOD_REFERENCE_ROOT).unwrap_unchecked() }
 }

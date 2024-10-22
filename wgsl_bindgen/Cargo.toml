@@ -19,7 +19,6 @@ proc-macro2.workspace = true
 prettyplease.workspace = true
 thiserror.workspace = true
 case.workspace = true
-naga_oil.workspace = true
 regex.workspace = true
 data-encoding.workspace = true
 indexmap.workspace = true
@@ -31,15 +30,8 @@ smol_str.workspace = true
 colored.workspace = true
 derive_builder.workspace = true
 miette.workspace = true
-blake3.workspace = true
 regex-syntax.workspace = true
 strum.workspace = true
 strum_macros.workspace = true
-pathdiff.workspace = true
 enumflags2.workspace = true
 heck.workspace = true
-
-[dev-dependencies]
-indoc.workspace = true
-pretty_assertions.workspace = true
-miette = { workspace = true, features = ["fancy", "syntect"] }

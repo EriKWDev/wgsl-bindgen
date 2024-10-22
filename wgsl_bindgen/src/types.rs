@@ -15,24 +15,24 @@ pub type FxIndexSet<T> = IndexSet<T, FxBuildHasher>;
 pub struct SourceFilePath(PathBuf);
 
 impl SourceFilePath {
-  pub fn new(value: impl Into<PathBuf>) -> Self {
-    Self(value.into())
-  }
+    pub fn new(value: impl Into<PathBuf>) -> Self {
+        Self(value.into())
+    }
 
-  pub fn read_contents(&self) -> Result<String, std::io::Error> {
-    std::fs::read_to_string(self.as_path())
-  }
+    pub fn read_contents(&self) -> Result<String, std::io::Error> {
+        std::fs::read_to_string(self.as_path())
+    }
 
-  pub fn dir(&self) -> SourceFileDir {
-    SourceFileDir(self.parent().unwrap().into())
-  }
+    pub fn dir(&self) -> SourceFileDir {
+        SourceFileDir(self.parent().unwrap().into())
+    }
 
-  pub fn file_prefix(&self) -> String {
-    // file_prefix is only available in nightly
-    let file_name = self.0.file_stem().unwrap().to_str().unwrap();
-    let prefix = file_name.split('.').next().unwrap_or("");
-    prefix.to_string()
-  }
+    pub fn file_prefix(&self) -> String {
+        // file_prefix is only available in nightly
+        let file_name = self.0.file_stem().unwrap().to_str().unwrap();
+        let prefix = file_name.split('.').next().unwrap_or("");
+        prefix.to_string()
+    }
 }
 
 #[derive(AsRef, Hash, From, Into, Clone, PartialEq, Eq, Derivative, Deref, Display)]
@@ -41,19 +41,19 @@ impl SourceFilePath {
 pub struct SourceFileDir(PathBuf);
 
 impl SourceFileDir {
-  pub fn new(value: impl Into<PathBuf>) -> Self {
-    Self(value.into())
-  }
+    pub fn new(value: impl Into<PathBuf>) -> Self {
+        Self(value.into())
+    }
 
-  pub fn read_contents(&self) -> Result<String, std::io::Error> {
-    std::fs::read_to_string(self.as_path())
-  }
+    pub fn read_contents(&self) -> Result<String, std::io::Error> {
+        std::fs::read_to_string(self.as_path())
+    }
 }
 
 impl From<&SourceFilePath> for SourceFileDir {
-  fn from(value: &SourceFilePath) -> Self {
-    value.dir()
-  }
+    fn from(value: &SourceFilePath) -> Self {
+        value.dir()
+    }
 }
 
 /// Import part path used in the import statement
@@ -63,9 +63,9 @@ impl From<&SourceFilePath> for SourceFileDir {
 pub struct ImportPathPart(SmolStr);
 
 impl ImportPathPart {
-  pub fn new(value: impl Into<SmolStr>) -> Self {
-    Self(value.into())
-  }
+    pub fn new(value: impl Into<SmolStr>) -> Self {
+        Self(value.into())
+    }
 }
 
 #[derive(AsRef, Hash, From, Into, Clone, PartialEq, Eq, Derivative, Deref, Display)]
@@ -74,25 +74,25 @@ impl ImportPathPart {
 pub struct SourceModuleName(SmolStr);
 
 impl SourceModuleName {
-  pub fn new(value: impl Into<SmolStr>) -> Self {
-    Self(value.into())
-  }
+    pub fn new(value: impl Into<SmolStr>) -> Self {
+        Self(value.into())
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SourceLocation {
-  /// 1-based line number.
-  pub line_number: usize,
-  /// 1-based column of the start of this span
-  pub line_position: usize,
-  /// 0-based Offset in code units (in bytes) of the start of the span.
-  pub offset: usize,
-  /// Length in code units (in bytes) of the span.
-  pub length: usize,
+    /// 1-based line number.
+    pub line_number: usize,
+    /// 1-based column of the start of this span
+    pub line_position: usize,
+    /// 0-based Offset in code units (in bytes) of the start of the span.
+    pub offset: usize,
+    /// Length in code units (in bytes) of the span.
+    pub length: usize,
 }
 
 impl From<&SourceLocation> for miette::SourceSpan {
-  fn from(value: &SourceLocation) -> miette::SourceSpan {
-    miette::SourceSpan::new(value.offset.into(), value.length)
-  }
+    fn from(value: &SourceLocation) -> miette::SourceSpan {
+        miette::SourceSpan::new(value.offset.into(), value.length)
+    }
 }

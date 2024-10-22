@@ -1,7 +1,7 @@
 [workspace]
 # wgpu requires the newer resolver
 resolver = "2"
-members = ["wgsl_bindgen", "example"]
+members = ["wgsl_bindgen"]
 
 [workspace.package]
 version = "0.15.1"
@@ -26,12 +26,10 @@ futures = "0.3"
 fxhash = "0.2"
 glam = "0.28"
 heck = "0.5"
-include_absolute_path = "0.1"
 indexmap = "2.2"
 indoc = "2.0"
 miette = "7.0"
 naga = "22.1"
-naga_oil = "0.15"
 pathdiff = "0.2"
 pretty_assertions = "1.2"
 prettyplease = "0.2"
